@@ -3,12 +3,16 @@ class. Which algorithm? Why?'''
 
 '''Topilogical sorting can be implemented with a variant of the recursive 
 depth first traversal. Depth first traversal goes as far as possible through the nodes 
-until it finds a sink, and then goes back. So, it's suitable for ordering which nodes 
-can be visited. DFS can detect if the graph has cycles, which is important 
+until it finds a sink, and then goes back.
+
+(Recursively going through the graph until there is nothing else left to visit, 
+ie until we reach the end of the graph)
+
+DFS can detect if the graph has cycles, which is important 
 because topological sorting is for acyclic graphs. It is also efficient because it has
 linear time complexity
 '''
-#+ using a stack 
+# + using a stack 
 
 
 ''' 2: Extend your Graph class (exercise 1) with an isdag() method that
