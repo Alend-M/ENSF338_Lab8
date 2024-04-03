@@ -204,4 +204,6 @@ Min time: 0.15888888899999998
 Max time: 0.5342903769999907
 Avg time: 0.20847883316751298
 
+Fast is faster than slow. This is to be expected because FastSP uses a priority queue,
+which is more efficient than linear search in finding the smalling distance between nodes.
 '''
