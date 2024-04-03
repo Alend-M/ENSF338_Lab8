@@ -178,3 +178,30 @@ print("Avg time:", fastSP_avgTime)
 
 ''' 4: Plot a histogram of the distribution of execution times across all
 nodes, and discuss the results'''
+
+plt.figure(figsize=(10, 5))
+
+plt.hist(slowSP_times, bins=20, color='blue', alpha=0.5, label='slowSP')
+
+plt.hist(fastSP_times, bins=20, color='red', alpha=0.5, label='fastSP')
+
+plt.title('Distribution of Execution Times for slowSP and fastSP')
+plt.xlabel('Execution Time')
+plt.ylabel('Frequency')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+'''
+Results: 
+slowSP performance:
+Min time: 0.4861818529999997
+Max time: 1.4863040210000236
+Avg time: 0.5910209192091381
+
+fastSP performance:
+Min time: 0.15888888899999998
+Max time: 0.5342903769999907
+Avg time: 0.20847883316751298
+
+'''
