@@ -33,45 +33,7 @@ class Graph:
             connections = self.adjacency_list[node]
             print(f"Node {node} connects to:")
             for neighbor, weight in connections:
-                print(f"  {neighbor} with weight {weight}\n")
-
-    def find(self, parent, i):
-        if parent[i] == i:
-            return i
-        return self.find(parent, parent[i])
-    
-    def union(self, parent, rank, nodex, nodey):
-        xroot = self.find(parent, nodex)
-        yroot = self.find(parent, nodey)
-        if rank[xroot] < rank[yroot]:
-            parent[xroot] = yroot
-        elif rank[xroot] > rank[yroot]:
-            parent[yroot] = xroot
-        else:
-            parent[yroot] = xroot
-            rank[xroot] += 1
-    
-    def mst(self):
-        parent = {}
-        rank = {}
-        for node in self.adjacency_list:
-            parent[node] = node
-            rank[node] = 0
-        sorted_edges = []
-        for node in self.adjacency_list:
-            for neighbor, weight in self.adjacency_list[node]:
-                sorted_edges.append((node, neighbor, weight))
-        sorted_edges.sort(key = lambda item: item[2])
-        mst_edges = []
-        for edge in sorted_edges:
-            nodex, nodey, weight = edge
-            xroot = self.find(parent, nodex)
-            yroot = self.find(parent, nodey)
-            
-            if (xroot != yroot):
-                mst_edges.append(edge)
-                self.union(parent, rank, xroot, yroot)
-        return mst_edges            
+                print(f"  {neighbor} with weight {weight}\n")      
 
     def importFromFile(self, file):
         try:
@@ -103,14 +65,66 @@ class Graph:
         except Exception as e:
             print("Error occurred while parsing the file:", e)
             return None
+        
+# 'find' method for union-find
+    def find(self, parent, i):
+        if parent[i] == i:
+            return i
+        return self.find(parent, parent[i])  
 
-# Example usage:
+# 'union' method for union-find  
+    def union(self, parent, rank, nodex, nodey):
+        xroot = self.find(parent, nodex)
+        yroot = self.find(parent, nodey)
+        if rank[xroot] < rank[yroot]:
+            parent[xroot] = yroot
+        elif rank[xroot] > rank[yroot]:
+            parent[yroot] = xroot
+        else:
+            parent[yroot] = xroot
+            rank[xroot] += 1
+
+# full kruskal algorithm implementation w/ union-find
+    def mst(self):
+        parent = {}
+        rank = {}
+        for node in self.adjacency_list:
+            parent[node] = node
+            rank[node] = 0
+        sorted_edges = []
+        for node in self.adjacency_list:
+            for neighbor, weight in self.adjacency_list[node]:
+                sorted_edges.append((node, neighbor, weight))
+        sorted_edges.sort(key = lambda item: item[2])
+        mst_edges = []
+        for edge in sorted_edges:
+            nodex, nodey, weight = edge
+            xroot = self.find(parent, nodex)
+            yroot = self.find(parent, nodey)
+            
+            if (xroot != yroot):
+                mst_edges.append(edge)
+                self.union(parent, rank, xroot, yroot)
+        return mst_edges
+
+# Example usage w/ example graph from ex3.pdf:
 graph = Graph()
 graph.addNode('A')
 graph.addNode('B')
 graph.addNode('C')
-graph.addEdge(GraphNode('A'), GraphNode('B'), 5)
-graph.addEdge(GraphNode('A'), GraphNode('C'), 10)
+graph.addNode('D')
+graph.addNode('E')
+graph.addNode('F')
+
+graph.addEdge(GraphNode('A'), GraphNode('B'), 3)
+graph.addEdge(GraphNode('A'), GraphNode('D'), 1)
+graph.addEdge(GraphNode('A'), GraphNode('E'), 9)
+graph.addEdge(GraphNode('C'), GraphNode('B'), 12)
+graph.addEdge(GraphNode('C'), GraphNode('D'), 3)
+graph.addEdge(GraphNode('D'), GraphNode('B'), 10)
+graph.addEdge(GraphNode('D'), GraphNode('F'), 2)
+graph.addEdge(GraphNode('F'), GraphNode('E'), 15)
+
 mst = graph.mst()
 print("Minimum spanning tree:")
 for edge in mst:
