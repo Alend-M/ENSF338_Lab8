@@ -155,11 +155,11 @@ class Graph2:
         return traversal_order
 
 def measure_dfs_graph1():
-    time_taken = timeit.timeit(lambda: graph1.dfs(list(graph1.adjacency_list.keys())[0]), number = 10)
+    time_taken = timeit.timeit(lambda: graph1.dfs(list(graph1.adjacency_list.keys())[0]), number = 1)
     return time_taken
 
 def measure_dfs_graph2():
-    time_taken = timeit.timeit(lambda: graph2.dfs(list(graph2.adjacency_matrix.keys())[0]), number = 10)
+    time_taken = timeit.timeit(lambda: graph2.dfs(list(graph2.adjacency_matrix.keys())[0]), number = 1)
     return time_taken
 
 graph_file = "random.dot"
@@ -190,3 +190,7 @@ print("Performance of dfs() for adjacency matrix graph (Graph2 class):")
 print(f'Max time: {max_time_graph2} seconds')
 print(f'Min time: {min_time_graph2} seconds')
 print(f'Average time: {avg_time_graph2} seconds')
+
+# The adjacency list implementation is slightly faster than the adjacency matrix implementation (avg and min times).
+# This is because dfs traversal through an adjacency list has a complexity of O([# of vertices] + [# of edges]) = ~O(n),
+# while an adjacency matrix goes up to O([# of vertices]^2) = ~O(n^2).
