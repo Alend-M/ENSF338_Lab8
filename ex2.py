@@ -1,4 +1,4 @@
-import timeit
+import time
 import matplotlib.pyplot as plt
 import heapq
 
@@ -96,107 +96,69 @@ class Graph:
             print("Error occurred while parsing the file:", e)
             return None
 
-    def fastSP(self, start_node):
-        distances = {vertex: float('inf') for vertex in self.adjacency_list}
-        distances[start_node] = 0
-        priority_queue = [(0, node)]
-
-        while priority_queue:
-            current_distance, current_node = heapq.heappop(priority_queue)
-            for neighbor, weight in self.adjacency_list[current_node]:
-                if distances[neighbor] > current_distance + weight:
-                    distances[neighbor] = current_distance + weight
-                    heapq.heappush(
-                        priority_queue, (distances[neighbor], neighbor))
-
-        # # Custom priority queue using a dictionary
-        # priority_queue = {start_node: 0}
-
-        # while priority_queue:
-        #     current_vertex = min(priority_queue, key=priority_queue.get) #This is to find the vertex with the smallest tentative distance. This operation finds the minimum key in the dictionary based on its corresponding value.
-        #     del priority_queue[current_vertex] #delete the selected vertex from the priority_queue after processing it to ensure it is not considered again.
-
-        #     for neighbor, weight in self.adjacency_list[current_vertex]:
-        #         distance = distances[current_vertex] + weight
-        #         if distance < distances[neighbor]:
-        #             distances[neighbor] = distance
-        #             priority_queue[neighbor] = distance
-
-        # return distances
-
-    def slowSP(self, start_node):
-        distances = {n: float('inf') for n in self.adjacency_list}
-        distances[start_node] = 0
-        visited = set()
-
-        while len(visited) < len(self.adjacency_list):
-            min_distance = float('inf')
+    def slowSP(self, node):
+        distances = {key: float('inf') for key in self.adjacency_list}
+        distances[node.data] = 0
+        unvisited = set(self.adjacency_list.keys())
+        while unvisited:
             min_node = None
-            for n, distance in distances.items():
-                if n not in visited and distance < min_distance:
-                    min_distance = distance
+            min_distance = float('inf')
+            for n in unvisited:
+                if distances[n] < min_distance:
+                    min_distance = distances[n]
                     min_node = n
-
-            if min_node is None:
-                break
-
-            visited.add(min_node)
-
+            unvisited.remove(min_node)
             for neighbor, weight in self.adjacency_list[min_node]:
-                if distances[neighbor] > distances[min_node] + weight:
-                    distances[neighbor] = distances[min_node] + weight
+                alt = distances[min_node] + weight
+                if alt < distances[neighbor]:
+                    distances[neighbor] = alt
+        return distances
 
-        # unvisited = list(self.adjacency_list.keys())
-
-        # while unvisited:
-        #     min_distance = float('inf')
-        #     min_vertex = None
-        #     for vertex in unvisited:
-        #         if distances[vertex] < min_distance:
-        #             min_distance = distances[vertex]
-        #             min_vertex = vertex
-        #     current_vertex = min_vertex
-        #     unvisited.remove(current_vertex)
-
-        #     for neighbor, weight in self.adjacency_list[current_vertex]:
-        #         if (distances[current_vertex] + weight < distances[neighbor]):
-        #             distances[neighbor] = distances[current_vertex] + weight
-
-        # return distances
-        '''The commented out code is basically the same thing but without heapq, less efficient.'''
-
+    def fastSP(self, node):
+        distances = {key: float('inf') for key in self.adjacency_list}
+        distances[node.data] = 0
+        unvisited = [(0, node.data)]
+        while unvisited:
+            curr_dist, curr_node = heapq.heappop(unvisited)
+            for neighbor, weight in self.adjacency_list[curr_node]:
+                alt = curr_dist + weight
+                if alt < distances[neighbor]:
+                    distances[neighbor] = alt
+                    heapq.heappush(unvisited, (alt, neighbor))
+        return distances 
 
 ''' 3: Measure the performance of each algorithm on the sample graph
 provided on the lab's D2L (random.dot).
     • Time the execution of the algorithm, for all nodes
     • Report average, max and min time'''
 
-print("start")
+print("Start")
 graph = Graph()
-file_path = "random.dot"
-graph.importFromFile(file_path)
-# graph.printGraph() #to verify that its been imported correctly, and yes, it has :)
-print("got data from file")
+graph.importFromFile("random.dot")
 
 slowSP_times = []
 fastSP_times = []
 
-for node in graph.adjacency_list:
-    slowSP_time = timeit.timeit(lambda: graph.slowSP(node), number=10)
-    fastSP_time = timeit.timeit(lambda: graph.fastSP(node), number=10)
-    slowSP_times.append(slowSP_time)
-    fastSP_times.append(fastSP_time)
+for node in graph.adjacency_list.keys():
+    # time for slowSP
+    start_time = time.time()
+    graph.slowSP(GraphNode(node))
+    slowSP_times.append(time.time() - start_time)
 
-print("timings done")
-# Calculate the minimum, maximum, and average times for slowSP
-slowSP_minTime = min(slowSP_times)
-slowSP_maxTime = max(slowSP_times)
+    # time for fastSP
+    start_time = time.time()
+    graph.fastSP(GraphNode(node))
+    fastSP_times.append(time.time() - start_time)
+
+print("Timings done\n")
+
 slowSP_avgTime = sum(slowSP_times) / len(slowSP_times)
+slowSP_maxTime = max(slowSP_times)
+slowSP_minTime = min(slowSP_times)
 
-# Calculate the minimum, maximum, and average times for fastSP
-fastSP_minTime = min(fastSP_times)
-fastSP_maxTime = max(fastSP_times)
 fastSP_avgTime = sum(fastSP_times) / len(fastSP_times)
+fastSP_maxTime = max(fastSP_times)
+fastSP_minTime = min(fastSP_times)
 
 # Print the results
 print("slowSP performance:")
@@ -209,16 +171,12 @@ print("Min time:", fastSP_minTime)
 print("Max time:", fastSP_maxTime)
 print("Avg time:", fastSP_avgTime)
 
-
 ''' 4: Plot a histogram of the distribution of execution times across all
 nodes, and discuss the results'''
 
 plt.figure(figsize=(10, 5))
-
-plt.hist(slowSP_times, bins ='20', color='blue', alpha=0.5, label='slowSP')
-
-plt.hist(fastSP_times, bins = '20', color='red', alpha=0.5, label='fastSP')
-
+plt.hist(slowSP_times, bins = 20, color='blue', alpha=0.5, label='slowSP')
+plt.hist(fastSP_times, bins = 20, color='red', alpha=0.5, label='fastSP')
 plt.title('Distribution of Execution Times for slowSP and fastSP')
 plt.xlabel('Execution Time')
 plt.ylabel('Frequency')
@@ -229,16 +187,15 @@ plt.show()
 '''
 Results: 
 
-
 slowSP performance:
-Min time: 0.8599454189999278
-Max time: 1.464890362999995
-Avg time: 0.8861602737441634
+Min time: 0.05750250816345215
+Max time: 0.20662975311279297
+Avg time: 0.08509862241406126
 
 fastSP performance:
-Min time: 0.024576449999926808
-Max time: 0.05369539800000034
-Avg time: 0.02654141102944253
+Min time: 0.0
+Max time: 0.019435644149780273
+Avg time: 0.0044732834481950945
 
 FastSP is faster than slowSP. This is to be expected because FastSP uses a priority queue,
 which is more efficient than linear search in finding the smallest distance between nodes.
