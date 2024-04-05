@@ -190,3 +190,23 @@ print("Performance of dfs() for adjacency matrix graph (Graph2 class):")
 print(f'Max time: {max_time_graph2} seconds')
 print(f'Min time: {min_time_graph2} seconds')
 print(f'Average time: {avg_time_graph2} seconds')
+
+'''
+Output:
+Performance of dfs() for adjacency list graph (Graph class):
+Max time: 0.056967699999999954 seconds
+Min time: 0.03408079999999997 seconds
+Average time: 0.039822939999999994 seconds
+Performance of dfs() for adjacency matrix graph (Graph2 class):
+Max time: 0.0557879 seconds
+Min time: 0.03569650000000002 seconds
+Average time: 0.04398133 seconds
+
+'''
+# The adjacency list implementation is slightly faster than the adjacency matrix
+# implementation (on average). This is because dfs traversal through an adjacency
+# list has a time comlexity of O([# of vertices] + [# of edges]), which is ~O(n).
+# Meanwhile, dfs traversal through an adjacency matrix has a time complexity of 
+# O([# of vertices]^2), which is ~O(n^2). In a larger graph such as this one, the
+# actual time difference may be miniscule due to the possibility of the values of
+# [# of vertices]^2 and [vertices + edges] being similar.
